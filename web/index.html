@@ -217,6 +217,13 @@
           </div>
           <button class="secondary" id="manip-btn" onclick="manipulate()" style="margin-top: 14px;" disabled>Apply Manipulation</button>
         </div>
+        <div class="panel result" id="render-panel">
+          <h2>Asset Render</h2>
+          <div class="field"><div class="label">Job ID</div><div id="render-job" class="value"></div></div>
+          <div class="field"><div class="label">Status</div><div id="render-status" class="value"></div></div>
+          <div class="field" id="render-url-wrap"><div class="label">Render URL</div><a id="render-url" class="url" target="_blank"></a></div>
+          <button class="secondary" id="render-btn" onclick="render()" disabled>Render Video Assets</button>
+        </div>
         <div class="panel">
           <h2>Console</h2>
           <div class="console" id="console">Ready. Configure a brief and press Run Production.</div>
@@ -271,7 +278,9 @@
     });
     document.getElementById("plan-panel").classList.add("show");
     document.getElementById("manipulate-panel").classList.add("show");
+    document.getElementById("render-panel").classList.add("show");
     document.getElementById("manip-btn").disabled = false;
+    document.getElementById("render-btn").disabled = false;
     updateManipFields();
   }
 
@@ -374,6 +383,38 @@
       renderPlan(data.plan);
     } catch (err) {
       log(`Manipulation error: ${err.message}`);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  async function render() {
+    if (!currentPlan) return;
+    const btn = document.getElementById("render-btn");
+    btn.disabled = true;
+    document.getElementById("render-job").textContent = "";
+    document.getElementById("render-status").textContent = "Submitting...";
+    document.getElementById("render-url-wrap").style.display = "none";
+
+    try {
+      const resp = await fetch("/api/render", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ plan: currentPlan }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
+      log(`Render job ${data.job_id}: ${data.status}`);
+      document.getElementById("render-job").textContent = data.job_id;
+      document.getElementById("render-status").textContent = data.status;
+      if (data.render_url) {
+        document.getElementById("render-url-wrap").style.display = "block";
+        const urlEl = document.getElementById("render-url");
+        urlEl.textContent = data.render_url;
+        urlEl.href = data.render_url;
+      }
+    } catch (err) {
+      log(`Render error: ${err.message}`);
+      document.getElementById("render-status").textContent = err.message;
     } finally {
       btn.disabled = false;
     }

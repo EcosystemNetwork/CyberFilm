@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from cyberfilm.assets import AssetGenerator, PlaceholderAssetGenerator, RenderJob
 from cyberfilm.domain import ProductionBrief, ProductionPlan, PublishApproval, RunResult, Shot
 from cyberfilm.manipulation import ManipulationEngine, ManipulationResult
 from cyberfilm.service import CyberFilmService
@@ -78,6 +79,16 @@ class ManipulationResponse(BaseModel):
     plan: PlanResponse
     action: str
     explanation: str
+
+
+class RenderRequest(BaseModel):
+    plan: PlanRequest
+
+
+class RenderResponse(BaseModel):
+    job_id: str
+    status: str
+    render_url: str | None = None
 
 
 @asynccontextmanager
@@ -155,9 +166,18 @@ def _manipulation_response(result: ManipulationResult) -> ManipulationResponse:
     )
 
 
+def _render_job_response(job: RenderJob) -> RenderResponse:
+    return RenderResponse(
+        job_id=job.job_id,
+        status=job.status,
+        render_url=job.render_url,
+    )
+
+
 def create_app(
     service: CyberFilmService | None = None,
     manipulation: ManipulationEngine | None = None,
+    assets: AssetGenerator | None = None,
 ) -> FastAPI:
     app = FastAPI(
         title="CyberFilm Production Control",
@@ -166,6 +186,7 @@ def create_app(
     )
     app.state.service = service or CyberFilmService.from_environment()
     app.state.manipulation = manipulation or ManipulationEngine()
+    app.state.assets = assets or PlaceholderAssetGenerator()
 
     @app.get("/api/health")
     async def health() -> dict[str, str]:
@@ -226,6 +247,26 @@ def create_app(
             ) from None
 
         return _manipulation_response(result)
+
+    @app.post("/api/render", response_model=RenderResponse)
+    async def render(
+        request: RenderRequest,
+        http_request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> RenderResponse:
+        _verify_token(authorization)
+        generator: AssetGenerator = http_request.app.state.assets
+        plan = _to_plan(request.plan)
+
+        try:
+            job = await generator.render(plan)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Render failed: {type(exc).__name__}",
+            ) from None
+
+        return _render_job_response(job)
 
     @app.get("/")
     async def index() -> FileResponse:

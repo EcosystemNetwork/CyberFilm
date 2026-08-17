@@ -80,6 +80,11 @@ See `.env.example` for the full list. The web service needs at minimum:
 - `DEMO_ACCESS_TOKEN` (in production)
 - `ENVIRONMENT` (set to `production` to enforce the token)
 
+## ADK Agent Runtime
+
+For the optional Gemini/ADK runtime deployment of the director and Replit
+agents, see [ops/gcp/AGENT_RUNTIME.md](ops/gcp/AGENT_RUNTIME.md).
+
 ## Security notes
 
 - Do not commit `.env` files or service-account JSON to the repository.

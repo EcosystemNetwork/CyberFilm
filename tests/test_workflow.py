@@ -26,6 +26,11 @@ class DirectorFake:
         return ProductionPlan("Treatment", ("Wide shot", "Close-up"), 125.0)
 
 
+class FailingDirectorFake:
+    async def plan(self, brief, research):
+        raise TimeoutError("provider details must not be persisted")
+
+
 class GovernanceFake:
     def __init__(self, approved: bool) -> None:
         self.approved = approved
@@ -102,6 +107,24 @@ class ProductionWorkflowTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(Stage.BLOCKED, result.stage)
         self.assertEqual(0, self.distribution.calls)
         self.assertEqual(Stage.BLOCKED, self.events.events[-1].stage)
+
+    async def test_partner_failure_records_sanitized_current_stage(self) -> None:
+        workflow = ProductionWorkflow(
+            ResearchFake(),
+            FailingDirectorFake(),
+            GovernanceFake(True),
+            self.events,
+            ObservabilityFake(),
+            self.distribution,
+        )
+
+        with self.assertRaises(TimeoutError):
+            await workflow.run(self.brief)
+
+        failure = self.events.events[-1]
+        self.assertEqual(Stage.DIRECTION, failure.stage)
+        self.assertEqual("failed", failure.event_type)
+        self.assertEqual({"error_type": "TimeoutError"}, failure.attributes)
 
 
 if __name__ == "__main__":

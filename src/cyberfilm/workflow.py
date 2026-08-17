@@ -1,3 +1,4 @@
+from contextlib import suppress
 from uuid import uuid4
 
 from cyberfilm.domain import (
@@ -39,6 +40,27 @@ class ProductionWorkflow:
         self, brief: ProductionBrief, publish_approval: PublishApproval | None = None
     ) -> RunResult:
         run_id = uuid4().hex
+        stage_state = {"current": Stage.RESEARCH}
+        try:
+            return await self._run(run_id, brief, publish_approval, stage_state)
+        except Exception as error:
+            with suppress(Exception):
+                await self._record(
+                    run_id,
+                    brief,
+                    stage_state["current"],
+                    "failed",
+                    {"error_type": type(error).__name__},
+                )
+            raise
+
+    async def _run(
+        self,
+        run_id: str,
+        brief: ProductionBrief,
+        publish_approval: PublishApproval | None,
+        stage_state: dict[str, Stage],
+    ) -> RunResult:
         await self._record(run_id, brief, Stage.RESEARCH, "started")
         research = await self._research.research(brief)
         await self._record(
@@ -49,6 +71,7 @@ class ProductionWorkflow:
             {"citation_count": len(research.citations), "risk_count": len(research.risks)},
         )
 
+        stage_state["current"] = Stage.DIRECTION
         await self._record(run_id, brief, Stage.DIRECTION, "started")
         plan = await self._director.plan(brief, research)
         await self._record(
@@ -59,6 +82,7 @@ class ProductionWorkflow:
             {"shot_count": len(plan.shots), "estimated_cost_usd": plan.estimated_cost_usd},
         )
 
+        stage_state["current"] = Stage.GOVERNANCE
         await self._record(run_id, brief, Stage.GOVERNANCE, "started")
         decision = await self._governance.evaluate(brief, research, plan)
         if not decision.approved:
@@ -83,6 +107,7 @@ class ProductionWorkflow:
             "approved",
             {"evaluation_id": decision.evaluation_id},
         )
+        stage_state["current"] = Stage.SUPERVISION
         await self._record(run_id, brief, Stage.INTELLIGENCE, "events_available")
         supervisor = await self._observability.inspect(run_id)
         await self._record(
@@ -98,6 +123,7 @@ class ProductionWorkflow:
 
         publication_url = None
         if publish_approval is not None:
+            stage_state["current"] = Stage.DISTRIBUTION
             await self._record(
                 run_id,
                 brief,
@@ -116,6 +142,7 @@ class ProductionWorkflow:
                 {"publication_url": publication_url},
             )
 
+        stage_state["current"] = Stage.COMPLETE
         await self._record(run_id, brief, Stage.COMPLETE, "completed")
         return RunResult(
             run_id=run_id,

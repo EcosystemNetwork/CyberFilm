@@ -41,13 +41,13 @@
   .brand h1 { margin: 0; font-size: 18px; letter-spacing: 1px; text-transform: uppercase; }
   .brand span { color: var(--accent); }
   .status-light { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
-  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
   .grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
-  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; }
   .panel h2 { margin: 0 0 14px 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
   label { display: block; margin-bottom: 12px; color: var(--muted); font-size: 12px; }
-  input, textarea {
+  input, textarea, select {
     width: 100%;
     margin-top: 4px;
     padding: 10px 12px;
@@ -57,7 +57,7 @@
     border-radius: var(--radius);
     font: inherit;
   }
-  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
   textarea { min-height: 64px; resize: vertical; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   button {
@@ -72,6 +72,7 @@
     cursor: pointer;
   }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.secondary { background: var(--panel-2); color: var(--accent); border: 1px solid var(--accent); }
   .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 16px 0; }
   .stage {
     text-align: center;
@@ -106,9 +107,29 @@
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 12px;
     min-height: 120px;
+    max-height: 240px;
+    overflow-y: auto;
     white-space: pre-wrap;
     color: var(--muted);
   }
+  .shot-list { display: flex; flex-direction: column; gap: 10px; }
+  .shot {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 70px 1fr 70px;
+    gap: 12px;
+    align-items: center;
+  }
+  .shot .id { color: var(--accent); font-family: monospace; }
+  .shot .duration { color: var(--muted); text-align: right; }
+  .shot .desc { font-size: 13px; }
+  .shot .meta { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .manipulate-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .manipulate-grid select { appearance: auto; }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -117,7 +138,7 @@
       <div class="status-light"></div>
       <h1>CyberFilm <span>// Control Room</span></h1>
     </div>
-    <div style="font-size: 12px; color: var(--muted);">Google Cloud Agentic Cinema</div>
+    <div style="font-size: 12px; color: var(--muted);">Agentic Video Production Suite</div>
   </header>
   <main>
     <div class="grid">
@@ -154,7 +175,49 @@
           <div class="field"><div class="label">Message</div><div id="out-msg" class="value"></div></div>
           <div class="field" id="out-url-wrap"><div class="label">Publication URL</div><a id="out-url" class="url" target="_blank"></a></div>
         </div>
-        <div class="panel" style="margin-top: 24px;">
+        <div class="panel result" id="plan-panel">
+          <h2>Production Plan</h2>
+          <div class="field"><div class="label">Treatment</div><div id="plan-treatment" class="value"></div></div>
+          <div class="field"><div class="label">Estimated Cost</div><div id="plan-cost" class="value"></div></div>
+          <div class="shot-list" id="shot-list"></div>
+        </div>
+        <div class="panel result" id="manipulate-panel">
+          <h2>Agentic Manipulation</h2>
+          <div class="manipulate-grid">
+            <label>Action
+              <select id="manip-action" onchange="updateManipFields()">
+                <option value="reorder">Reorder</option>
+                <option value="trim">Trim</option>
+                <option value="remove">Remove</option>
+                <option value="add">Add</option>
+                <option value="regenerate">Regenerate</option>
+              </select>
+            </label>
+            <label class="manip-param" data-for="reorder,trim,remove,regenerate">Shot ID
+              <input id="manip-shot" placeholder="shot-01">
+            </label>
+            <label class="manip-param" data-for="reorder">To index
+              <input id="manip-to" type="number" value="0">
+            </label>
+            <label class="manip-param" data-for="trim">New duration (s)
+              <input id="manip-duration" type="number" value="5">
+            </label>
+            <label class="manip-param" data-for="add,regenerate">Description
+              <input id="manip-desc" placeholder="New shot description">
+            </label>
+            <label class="manip-param" data-for="add">Duration (s)
+              <input id="manip-new-duration" type="number" value="5">
+            </label>
+            <label class="manip-param" data-for="add">Objective
+              <input id="manip-objective" placeholder="What the shot achieves">
+            </label>
+            <label class="manip-param" data-for="add">After shot
+              <input id="manip-after" placeholder="shot-01 or blank for end">
+            </label>
+          </div>
+          <button class="secondary" id="manip-btn" onclick="manipulate()" style="margin-top: 14px;" disabled>Apply Manipulation</button>
+        </div>
+        <div class="panel">
           <h2>Console</h2>
           <div class="console" id="console">Ready. Configure a brief and press Run Production.</div>
         </div>
@@ -164,6 +227,7 @@
 <script>
   const stages = ["research", "direction", "governance", "intelligence", "supervision", "distribution"];
   const order = { research: 0, direction: 1, governance: 2, intelligence: 3, supervision: 4, distribution: 5, complete: 6, blocked: 2, failed: -1 };
+  let currentPlan = null;
 
   function log(line) {
     const c = document.getElementById("console");
@@ -186,6 +250,46 @@
     });
   }
 
+  function renderPlan(plan) {
+    currentPlan = plan;
+    document.getElementById("plan-treatment").textContent = plan.treatment;
+    document.getElementById("plan-cost").textContent = `$${plan.estimated_cost_usd.toLocaleString()}`;
+    const list = document.getElementById("shot-list");
+    list.innerHTML = "";
+    plan.shots.forEach((shot, index) => {
+      const div = document.createElement("div");
+      div.className = "shot";
+      div.innerHTML = `
+        <div class="id">${shot.shot_id}</div>
+        <div>
+          <div class="desc">${shot.description}</div>
+          <div class="meta">${shot.production_objective} ${shot.risk_notes.length ? '• Risks: ' + shot.risk_notes.join(', ') : ''}</div>
+        </div>
+        <div class="duration">${shot.duration_seconds}s</div>
+      `;
+      list.appendChild(div);
+    });
+    document.getElementById("plan-panel").classList.add("show");
+    document.getElementById("manipulate-panel").classList.add("show");
+    document.getElementById("manip-btn").disabled = false;
+    updateManipFields();
+  }
+
+  function updateManipFields() {
+    const action = document.getElementById("manip-action").value;
+    document.querySelectorAll(".manip-param").forEach(el => {
+      const ok = el.dataset.for.split(",").includes(action);
+      el.style.display = ok ? "block" : "none";
+    });
+  }
+
+  function authHeaders() {
+    const h = { "Content-Type": "application/json" };
+    const token = document.getElementById("token").value.trim();
+    if (token) h["Authorization"] = "Bearer " + token;
+    return h;
+  }
+
   async function submit() {
     const btn = document.getElementById("run");
     btn.disabled = true;
@@ -200,22 +304,14 @@
     };
     document.getElementById("console").textContent = "Sending brief to CyberFilm service...";
     document.getElementById("result").classList.remove("show");
+    document.getElementById("plan-panel").classList.remove("show");
+    document.getElementById("manipulate-panel").classList.remove("show");
     resetTimeline();
 
-    const headers = { "Content-Type": "application/json" };
-    const token = document.getElementById("token").value.trim();
-    if (token) headers["Authorization"] = "Bearer " + token;
-
     try {
-      const resp = await fetch("/api/productions", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(brief),
-      });
+      const resp = await fetch("/api/productions", { method: "POST", headers: authHeaders(), body: JSON.stringify(brief) });
       const data = await resp.json();
-      if (!resp.ok) {
-        throw new Error(data.detail || `HTTP ${resp.status}`);
-      }
+      if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
       log(`Response: ${data.status} at stage ${data.stage}`);
       showTimeline(data.stage, data.status);
       document.getElementById("out-run").textContent = data.run_id;
@@ -234,6 +330,7 @@
         urlWrap.style.display = "none";
       }
       document.getElementById("result").classList.add("show");
+      if (data.plan) renderPlan(data.plan);
     } catch (err) {
       log(`Error: ${err.message}`);
       document.getElementById("result").classList.add("show");
@@ -241,6 +338,42 @@
       document.getElementById("status-badge").className = "badge failed";
       document.getElementById("out-msg").textContent = err.message;
       document.getElementById("out-msg").classList.add("error");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function manipulate() {
+    if (!currentPlan) return;
+    const btn = document.getElementById("manip-btn");
+    btn.disabled = true;
+    const action = document.getElementById("manip-action").value;
+    const params = {};
+    if (["reorder", "trim", "remove", "regenerate"].includes(action)) {
+      params.shot_id = document.getElementById("manip-shot").value;
+    }
+    if (action === "reorder") params.to_index = parseInt(document.getElementById("manip-to").value, 10);
+    if (action === "trim") params.new_duration = parseInt(document.getElementById("manip-duration").value, 10);
+    if (action === "add") {
+      params.description = document.getElementById("manip-desc").value;
+      params.duration_seconds = parseInt(document.getElementById("manip-new-duration").value, 10);
+      params.production_objective = document.getElementById("manip-objective").value;
+      params.after_shot_id = document.getElementById("manip-after").value || null;
+    }
+    if (action === "regenerate") params.description = document.getElementById("manip-desc").value;
+
+    try {
+      const resp = await fetch("/api/manipulate", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ action, plan: currentPlan, params }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
+      log(`${data.action}: ${data.explanation}`);
+      renderPlan(data.plan);
+    } catch (err) {
+      log(`Manipulation error: ${err.message}`);
     } finally {
       btn.disabled = false;
     }

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hmac
 import os
 from collections.abc import AsyncGenerator
@@ -35,6 +37,7 @@ class ProductionResponse(BaseModel):
     stage: str
     message: str
     publication_url: str | None = None
+    plan: PlanResponse | None = None
 
 
 class ShotRequest(BaseModel):
@@ -105,6 +108,7 @@ def _production_response(result: RunResult) -> ProductionResponse:
         stage=result.stage.value,
         message=result.message,
         publication_url=result.publication_url,
+        plan=_to_plan_response(result.plan) if result.plan else None,
     )
 
 

@@ -98,6 +98,7 @@ class ProductionWorkflow:
                 status=RunStatus.BLOCKED,
                 stage=Stage.BLOCKED,
                 message="Production blocked by governance policy.",
+                plan=plan,
             )
 
         await self._record(
@@ -150,6 +151,7 @@ class ProductionWorkflow:
             stage=Stage.COMPLETE,
             message="Production workflow completed.",
             publication_url=publication_url,
+            plan=plan,
         )
 
     async def _record(

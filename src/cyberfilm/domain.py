@@ -91,3 +91,4 @@ class RunResult:
     stage: Stage
     message: str
     publication_url: str | None = None
+    plan: ProductionPlan | None = None

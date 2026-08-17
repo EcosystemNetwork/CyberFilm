@@ -8,8 +8,8 @@ class WorkflowFake:
     def __init__(self) -> None:
         self.briefs = []
 
-    async def run(self, brief):
-        self.briefs.append(brief)
+    async def run(self, brief, publish_approval=None):
+        self.briefs.append((brief, publish_approval))
         return RunResult("run-1", RunStatus.COMPLETED, Stage.COMPLETE, "done")
 
 
@@ -31,7 +31,7 @@ class CyberFilmServiceTests(unittest.IsolatedAsyncioTestCase):
         result = await service.run(brief)
 
         self.assertEqual(RunStatus.COMPLETED, result.status)
-        self.assertEqual([brief], workflow.briefs)
+        self.assertEqual([(brief, None)], workflow.briefs)
 
     async def test_closes_long_lived_resources_in_reverse_order(self) -> None:
         closed = []

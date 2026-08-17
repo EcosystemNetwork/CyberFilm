@@ -1,7 +1,7 @@
 from typing import Any
 
 from cyberfilm.clickhouse_events import ClickHouseEventStore
-from cyberfilm.domain import ProductionBrief, ProductionPlan, RunResult
+from cyberfilm.domain import ProductionBrief, ProductionPlan, PublishApproval, RunResult
 from cyberfilm.gemini_director import GeminiDirectorAdapter
 from cyberfilm.grafana_observability import GrafanaObservabilityAdapter
 from cyberfilm.ibm_governance import WatsonxGovernanceAdapter
@@ -39,8 +39,10 @@ class CyberFilmService:
         )
         return cls(workflow, (director, events))
 
-    async def run(self, brief: ProductionBrief) -> RunResult:
-        return await self._workflow.run(brief)
+    async def run(
+        self, brief: ProductionBrief, publish_approval: PublishApproval | None = None
+    ) -> RunResult:
+        return await self._workflow.run(brief, publish_approval)
 
     async def close(self) -> None:
         for resource in reversed(self._resources):

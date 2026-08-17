@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberFilm Control Room</title>
+<style>
+  :root {
+    --bg: #0b0c10;
+    --panel: #12151b;
+    --panel-2: #1b1f27;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #00f0ff;
+    --accent-2: #00b4d8;
+    --alert: #ff2a6d;
+    --ok: #05ffa1;
+    --warn: #f9c74f;
+    --border: #2a303b;
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand h1 { margin: 0; font-size: 18px; letter-spacing: 1px; text-transform: uppercase; }
+  .brand span { color: var(--accent); }
+  .status-light { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .panel h2 { margin: 0 0 14px 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  label { display: block; margin-bottom: 12px; color: var(--muted); font-size: 12px; }
+  input, textarea {
+    width: 100%;
+    margin-top: 4px;
+    padding: 10px 12px;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font: inherit;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { min-height: 64px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border: none;
+    color: #000;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 16px 0; }
+  .stage {
+    text-align: center;
+    padding: 10px 4px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .stage.active { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
+  .stage.done { background: rgba(5,255,161,0.1); border-color: var(--ok); color: var(--ok); }
+  .stage.blocked { background: rgba(255,42,109,0.1); border-color: var(--alert); color: var(--alert); }
+  .result { display: none; }
+  .result.show { display: block; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+  .badge.completed { background: rgba(5,255,161,0.15); color: var(--ok); }
+  .badge.blocked { background: rgba(255,42,109,0.15); color: var(--alert); }
+  .badge.failed { background: rgba(249,199,79,0.15); color: var(--warn); }
+  .field { margin-bottom: 10px; }
+  .field .label { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+  .field .value { color: var(--text); font-size: 14px; }
+  .url { color: var(--accent); word-break: break-all; }
+  .error { color: var(--alert); }
+  .console {
+    background: #08090c;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    min-height: 120px;
+    white-space: pre-wrap;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="status-light"></div>
+      <h1>CyberFilm <span>// Control Room</span></h1>
+    </div>
+    <div style="font-size: 12px; color: var(--muted);">Google Cloud Agentic Cinema</div>
+  </header>
+  <main>
+    <div class="grid">
+      <div class="panel">
+        <h2>New Production</h2>
+        <label>Project ID<input id="project_id" value="cyberfilm-pilot-01"></label>
+        <label>Title<input id="title" value="Neon Horizon"></label>
+        <label>Logline<textarea id="logline">A washed-up courier on a frozen colony must deliver a sentient seed before the sun dies.</textarea></label>
+        <label>Audience<input id="audience" value="sci-fi / streaming / 18-34"></label>
+        <div class="row">
+          <label>Budget USD<input id="budget" type="number" value="120000"></label>
+          <label>Runtime (s)<input id="runtime" type="number" value="180"></label>
+        </div>
+        <label>Approver (optional - triggers Replit)<input id="approver" placeholder="producer@example.com"></label>
+        <label>Access token (production)<input id="token" type="password" placeholder="Bearer token"></label>
+        <button id="run" onclick="submit()">Run Production</button>
+      </div>
+      <div>
+        <div class="panel">
+          <h2>Agent Timeline</h2>
+          <div class="timeline" id="timeline">
+            <div class="stage" data-stage="research">Research</div>
+            <div class="stage" data-stage="direction">Direction</div>
+            <div class="stage" data-stage="governance">Governance</div>
+            <div class="stage" data-stage="intelligence">Intelligence</div>
+            <div class="stage" data-stage="supervision">Supervision</div>
+            <div class="stage" data-stage="distribution">Distribution</div>
+          </div>
+        </div>
+        <div class="panel result" id="result">
+          <h2>Run Result <span id="status-badge" class="badge"></span></h2>
+          <div class="field"><div class="label">Run ID</div><div id="out-run" class="value"></div></div>
+          <div class="field"><div class="label">Stage</div><div id="out-stage" class="value"></div></div>
+          <div class="field"><div class="label">Message</div><div id="out-msg" class="value"></div></div>
+          <div class="field" id="out-url-wrap"><div class="label">Publication URL</div><a id="out-url" class="url" target="_blank"></a></div>
+        </div>
+        <div class="panel" style="margin-top: 24px;">
+          <h2>Console</h2>
+          <div class="console" id="console">Ready. Configure a brief and press Run Production.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+<script>
+  const stages = ["research", "direction", "governance", "intelligence", "supervision", "distribution"];
+  const order = { research: 0, direction: 1, governance: 2, intelligence: 3, supervision: 4, distribution: 5, complete: 6, blocked: 2, failed: -1 };
+
+  function log(line) {
+    const c = document.getElementById("console");
+    c.textContent += "\n" + line;
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function resetTimeline() {
+    document.querySelectorAll(".stage").forEach(el => el.classList.remove("done", "active", "blocked"));
+  }
+
+  function showTimeline(stage, status) {
+    resetTimeline();
+    const idx = order[stage] ?? -1;
+    const limit = status === "completed" ? 5 : (idx - 1);
+    stages.forEach((s, i) => {
+      const el = document.querySelector(`[data-stage="${s}"]`);
+      if (status === "completed" || (i <= limit && limit >= 0)) el.classList.add("done");
+      if (s === stage) el.classList.add(status === "completed" ? "done" : status === "blocked" ? "blocked" : "active");
+    });
+  }
+
+  async function submit() {
+    const btn = document.getElementById("run");
+    btn.disabled = true;
+    const brief = {
+      project_id: document.getElementById("project_id").value,
+      title: document.getElementById("title").value,
+      logline: document.getElementById("logline").value,
+      audience: document.getElementById("audience").value,
+      budget_usd: parseInt(document.getElementById("budget").value, 10),
+      max_runtime_seconds: parseInt(document.getElementById("runtime").value, 10),
+      approve_publication_by: document.getElementById("approver").value || null,
+    };
+    document.getElementById("console").textContent = "Sending brief to CyberFilm service...";
+    document.getElementById("result").classList.remove("show");
+    resetTimeline();
+
+    const headers = { "Content-Type": "application/json" };
+    const token = document.getElementById("token").value.trim();
+    if (token) headers["Authorization"] = "Bearer " + token;
+
+    try {
+      const resp = await fetch("/api/productions", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(brief),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.detail || `HTTP ${resp.status}`);
+      }
+      log(`Response: ${data.status} at stage ${data.stage}`);
+      showTimeline(data.stage, data.status);
+      document.getElementById("out-run").textContent = data.run_id;
+      document.getElementById("out-stage").textContent = data.stage;
+      document.getElementById("out-msg").textContent = data.message;
+      const badge = document.getElementById("status-badge");
+      badge.textContent = data.status;
+      badge.className = "badge " + (data.status === "completed" ? "completed" : data.status === "blocked" ? "blocked" : "failed");
+      const urlWrap = document.getElementById("out-url-wrap");
+      const urlEl = document.getElementById("out-url");
+      if (data.publication_url) {
+        urlWrap.style.display = "block";
+        urlEl.textContent = data.publication_url;
+        urlEl.href = data.publication_url;
+      } else {
+        urlWrap.style.display = "none";
+      }
+      document.getElementById("result").classList.add("show");
+    } catch (err) {
+      log(`Error: ${err.message}`);
+      document.getElementById("result").classList.add("show");
+      document.getElementById("status-badge").textContent = "failed";
+      document.getElementById("status-badge").className = "badge failed";
+      document.getElementById("out-msg").textContent = err.message;
+      document.getElementById("out-msg").classList.add("error");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

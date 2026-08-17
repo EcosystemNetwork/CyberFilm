@@ -19,6 +19,8 @@ dependencies = [
   "clickhouse-connect[async]==1.6.0",
   "httpx==0.28.1",
   "ibm-watsonx-gov[metrics]==1.5.0",
+  "fastapi==0.140.11",
+  "uvicorn==0.40.0",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,30 @@
+# Environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+
+# JavaScript
+node_modules/
+dist/
+.vite/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Tests and tooling
+coverage/
+playwright-report/
+test-results/
+.DS_Store
+.idea/
+.vscode/
+
+# Local agent state
+.adk/

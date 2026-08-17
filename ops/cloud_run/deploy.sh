@@ -5,10 +5,12 @@ PROJECT="${GOOGLE_CLOUD_PROJECT:?set GOOGLE_CLOUD_PROJECT}"
 REGION="${GOOGLE_CLOUD_REGION:-us-central1}"
 SERVICE="${CYBERFILM_SERVICE:-cyberfilm}"
 
-IMAGE="gcr.io/${PROJECT}/${SERVICE}"
+IMAGE="us-central1-docker.pkg.dev/${PROJECT}/cyberfilm/${SERVICE}"
 
 echo "Building ${IMAGE}..."
-gcloud builds submit --tag "${IMAGE}"
+gcloud builds submit \
+  --config ops/cloud_run/cloudbuild.yaml \
+  --substitutions _IMAGE_NAME="${IMAGE}"
 
 echo "Deploying ${SERVICE} to ${REGION}..."
 gcloud run deploy "${SERVICE}" \

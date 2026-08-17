@@ -33,14 +33,23 @@ export GOOGLE_CLOUD_REGION=us-central1
 export CYBERFILM_SERVICE=cyberfilm
 ```
 
-3. Run the deployment script:
+3. Create the Artifact Registry repository if it does not exist:
+
+```bash
+gcloud artifacts repositories create cyberfilm \
+  --repository-format docker \
+  --location ${GOOGLE_CLOUD_REGION} \
+  --project ${GOOGLE_CLOUD_PROJECT}
+```
+
+4. Run the deployment script:
 
 ```bash
 chmod +x ops/cloud_run/deploy.sh
 ./ops/cloud_run/deploy.sh
 ```
 
-4. Set partner secrets using Secret Manager and attach them to the service:
+5. Set partner secrets using Secret Manager and attach them to the service:
 
 ```bash
 gcloud run services update cyberfilm \

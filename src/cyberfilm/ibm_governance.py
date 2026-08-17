@@ -93,8 +93,12 @@ class WatsonxGovernanceAdapter:
 
     @staticmethod
     def _output_text(plan: ProductionPlan) -> str:
+        shots_text = "\n".join(
+            f"{shot.shot_id}: {shot.description} ({shot.duration_seconds}s)"
+            for shot in plan.shots
+        )
         return (
-            f"Treatment: {plan.treatment}\nShots: {'; '.join(plan.shots)}\n"
+            f"Treatment: {plan.treatment}\nShots:\n{shots_text}\n"
             f"Estimated cost USD: {plan.estimated_cost_usd}"
         )
 

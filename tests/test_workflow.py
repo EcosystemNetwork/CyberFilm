@@ -8,6 +8,7 @@ from cyberfilm.domain import (
     PublishApproval,
     ResearchDossier,
     RunStatus,
+    Shot,
     Stage,
     SupervisorDecision,
 )
@@ -23,7 +24,14 @@ class DirectorFake:
     async def plan(
         self, brief: ProductionBrief, research: ResearchDossier
     ) -> ProductionPlan:
-        return ProductionPlan("Treatment", ("Wide shot", "Close-up"), 125.0)
+        return ProductionPlan(
+            "Treatment",
+            (
+                Shot("shot-01", "Wide shot", 5, "Establish scene", ()),
+                Shot("shot-02", "Close-up", 4, "Emotion beat", ()),
+            ),
+            125.0,
+        )
 
 
 class FailingDirectorFake:

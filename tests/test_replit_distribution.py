@@ -2,7 +2,7 @@ import unittest
 
 from vertexai.agent_engines import AdkApp
 
-from cyberfilm.domain import ProductionBrief, ProductionPlan
+from cyberfilm.domain import ProductionBrief, ProductionPlan, Shot
 from cyberfilm.replit_distribution import (
     REPLIT_MCP_URL,
     REPLIT_TOOLS,
@@ -33,7 +33,7 @@ class ReplitDistributionTests(unittest.TestCase):
         )
         plan = ProductionPlan(
             "A producer stabilizes an observable workflow.",
-            ("Wide control-room shot",),
+            (Shot("shot-01", "Wide control-room shot", 6, "Establish control room", ()),),
             75,
         )
 

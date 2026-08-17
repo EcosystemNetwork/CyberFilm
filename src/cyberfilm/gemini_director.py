@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 from cyberfilm.agent import ProductionPlanOutput
-from cyberfilm.domain import ProductionBrief, ProductionPlan, ResearchDossier
+from cyberfilm.domain import ProductionBrief, ProductionPlan, ResearchDossier, Shot
 
 
 class GeminiDirectorAdapter:
@@ -52,7 +52,13 @@ class GeminiDirectorAdapter:
         return ProductionPlan(
             treatment=parsed.treatment,
             shots=tuple(
-                f"{shot.shot_id}: {shot.description} ({shot.duration_seconds}s)"
+                Shot(
+                    shot_id=shot.shot_id,
+                    description=shot.description,
+                    duration_seconds=shot.duration_seconds,
+                    production_objective=shot.production_objective,
+                    risk_notes=tuple(shot.risk_notes),
+                )
                 for shot in parsed.shots
             ),
             estimated_cost_usd=parsed.estimated_cost_usd,

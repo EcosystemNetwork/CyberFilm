@@ -2,7 +2,7 @@ import json
 import unittest
 from types import SimpleNamespace
 
-from cyberfilm.domain import ProductionBrief, ProductionPlan, ResearchDossier
+from cyberfilm.domain import ProductionBrief, ProductionPlan, ResearchDossier, Shot
 from cyberfilm.ibm_governance import WatsonxGovernanceAdapter
 
 
@@ -52,7 +52,11 @@ class WatsonxGovernanceAdapterTests(unittest.IsolatedAsyncioTestCase):
             ("https://example.com/source",),
             ("Music rights remain unresolved.",),
         )
-        self.plan = ProductionPlan("A bounded treatment.", ("Wide shot",), 75)
+        self.plan = ProductionPlan(
+            "A bounded treatment.",
+            (Shot("shot-01", "Wide shot", 5, "Establish the scene", ()),),
+            75,
+        )
 
     def adapter(self, metrics_result):
         self.evaluator = EvaluatorFake(metrics_result)

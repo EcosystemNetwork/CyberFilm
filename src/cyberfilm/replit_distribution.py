@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 
 from google.adk import Agent
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
@@ -35,7 +36,7 @@ def build_distribution_request(brief: ProductionBrief, plan: ProductionPlan) -> 
         "title": brief.title,
         "audience": brief.audience,
         "treatment": plan.treatment,
-        "shots": list(plan.shots),
+        "shots": [asdict(s) for s in plan.shots],
         "estimated_cost_usd": plan.estimated_cost_usd,
     }
     return (

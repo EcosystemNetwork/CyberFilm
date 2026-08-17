@@ -39,9 +39,18 @@ class ResearchDossier:
 
 
 @dataclass(frozen=True, slots=True)
+class Shot:
+    shot_id: str
+    description: str
+    duration_seconds: int
+    production_objective: str
+    risk_notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class ProductionPlan:
     treatment: str
-    shots: tuple[str, ...]
+    shots: tuple[Shot, ...]
     estimated_cost_usd: float
 
 

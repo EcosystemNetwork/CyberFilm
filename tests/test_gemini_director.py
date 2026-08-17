@@ -82,7 +82,7 @@ class GeminiDirectorAdapterTests(unittest.IsolatedAsyncioTestCase):
         await adapter.close()
 
         self.assertEqual(75, plan.estimated_cost_usd)
-        self.assertIn("shot-01", plan.shots[0])
+        self.assertEqual("shot-01", plan.shots[0].shot_id)
         self.assertTrue(self.factory_options["vertexai"])
         self.assertTrue(self.client.aio.closed)
         call = self.client.aio.models.calls[0]

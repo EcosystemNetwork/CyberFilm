@@ -384,6 +384,7 @@ source = { editable = "." }
 dependencies = [
     { name = "google-adk" },
     { name = "google-cloud-aiplatform", extra = ["adk", "agent-engines"] },
+    { name = "parallel-web" },
     { name = "pydantic" },
 ]
 
@@ -397,6 +398,7 @@ dev = [
 requires-dist = [
     { name = "google-adk", specifier = "==2.6.3" },
     { name = "google-cloud-aiplatform", extras = ["adk", "agent-engines"], specifier = "==1.163.0" },
+    { name = "parallel-web", specifier = "==1.1.0" },
     { name = "pydantic", specifier = "==2.12.5" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==8.4.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.12.8" },
@@ -1242,6 +1244,23 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz", hash = "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79", size = 313412, upload-time = "2026-08-04T18:15:28.737Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl", hash = "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c", size = 129956, upload-time = "2026-08-04T18:15:27.159Z" },
+]
+
+[[package]]
+name = "parallel-web"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/51/1d/fefb7d976d3ea2ae61b0d9d6d638c9f837cb9fb96532680b148f33f322a1/parallel_web-1.1.0.tar.gz", hash = "sha256:97d6dbe4aa49b8c2c93f71f818d8883bc45bee71928bd945b7f616cecaacec0d", size = 157720, upload-time = "2026-06-08T18:22:21.298Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/ec/276c02247c973b02e254c9daac1844ccd38f385850c50e00ad46548eb5db/parallel_web-1.1.0-py3-none-any.whl", hash = "sha256:598aa5613c1146a3880a41592c343b0b9c0f51cff7c1ea6d10bc586d2df5e2f9", size = 167673, upload-time = "2026-06-08T18:22:20.068Z" },
 ]
 
 [[package]]

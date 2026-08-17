@@ -1,0 +1,13 @@
+.venv
+.env
+.env.local
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.pyc
+.mypy_cache
+.ruff_cache
+ops/clickhouse/*.local
+.vscode
+.idea
